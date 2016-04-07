@@ -1,0 +1,107 @@
+# @version ">=2.0"
+
+# Version Control System settings
+vcs:
+    # The SVN url to the project. You can overwrite this in your own z.yml,
+    # by default it is detected based on your working copy.
+#    url:            ~
+
+    export:
+        # The revision info file to write when exporting
+        revfile:    .z.rev
+
+tasks:
+    # Create a working copy of the specified version to the build dir
+    _vcs.build:
+        args:
+            _mode: is_dir(cat(build.dir, "/.git")) ? "update" : "checkout"
+        do:
+            - @(if _mode == "checkout")    @_vcs.checkout_build
+            - @(if _mode == "update")      @_vcs.update_build
+            - cd $(build.dir) && git log HEAD -1 > $(vcs.export.revfile)
+        yield: build.dir
+
+    _vcs.update_build:
+        - rm -rf $(build.dir)
+        - @_vcs.checkout_build
+
+    _vcs.checkout_build:
+        - echo "Checking out version $(build.version) to $(build.dir)";
+        - git clone . $(build.dir)
+        - cd $(build.dir) && git checkout $(build.version)
+
+    _vcs.cleanup:
+        - cd $(build.dir) && git clean -f
+
+    # Create a version branch
+    vcs.branch:
+        help: |
+            Create a branch of the current working revision.
+
+            Note that if the working copy is updated you should take care that you are actually tagging the right revision.
+        args:
+            branch:     ?
+        flags:
+            switch: true
+        do:
+            - @(with true as INTERACTIVE) git branch $(branch)
+            - @(if switch) git checkout $(branch)
+
+    # Create a version tag
+    vcs.tag:
+        help: |
+            Tags the current working revision
+
+            The local working copy is checked to see if it contains mixed revisions
+            (i.e. child dirs are committed, but the root is not updated), which might cause the wrong
+            revision to be branched.
+
+        args:
+            tag:        ?
+            message:    ? sprintf("(Z) Created tag '%s' from %s", tag, vcs.current)
+        do:
+            - @(with true as INTERACTIVE) git tag -am"$(message)" $(tag)
+
+    # List all versions
+    vcs.versions:
+        help: |
+            List all available tags and branches
+        do:
+            - git branch
+            - git tag -l
+
+    vcs.current:
+        help: |
+            Display current local working version.
+
+        do:
+            - echo $(versionof(cwd, VERBOSE))
+
+    # Diff to specific version
+    vcs.diff:
+        help: |
+            Diff two versions
+        args:
+            version:   ?
+            compare_to: ? vcs.current
+        do:
+            - git diff $(version) $(compare_to)
+
+    # Print the url of the project
+    vcs.url:
+        help: "Print the svn url of the project"
+        args:
+            _path: ? ""
+        do: echo $(vcs.url)/$(_path)
+
+    vcs.switch:
+        help: "Switch to the specified version"
+        args:
+            version:   ?
+        do: git checkout $(version)
+
+    vcs.tree:
+        help: "Shows last 35 tags and all branches with a short summary"
+        do: 
+            - echo "Sorry this was not implemented for yet git. Doing a v:versions in stead"
+            - @vcs.versions
