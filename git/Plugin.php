@@ -78,7 +78,7 @@ class Plugin extends BasePlugin
         $container->fn(
             array('vcs', 'diff'),
             function($left, $right, $verbose = false) {
-                return sprintf('git diff %s %s %s', $left, $right, ($verbose ? '' : '--name-only'));
+                return sprintf('git diff %s %s %s', $left, $right, ($verbose ? '' : '--name-only -G.'));
             }
         );
         $container->decl(
