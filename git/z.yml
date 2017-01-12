@@ -2,10 +2,6 @@
 
 # Version Control System settings
 vcs:
-    # The SVN url to the project. You can overwrite this in your own z.yml,
-    # by default it is detected based on your working copy.
-#    url:            ~
-
     export:
         # The revision info file to write when exporting
         revfile:    .z.rev
