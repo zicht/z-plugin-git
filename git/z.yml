@@ -101,3 +101,24 @@ tasks:
         do: 
             - echo "Sorry this was not implemented for yet git. Doing a v:versions in stead"
             - @vcs.versions
+    vcs.remote.set_head:
+        help: "updates the project remote head."
+        args:
+            remote: ? "origin"
+        do: git remote set-head $(remote) -a
+    vcs.remote.status:
+        help: "Prints the (count) behinds/aheads of commits from every remote branch in compare to the remote head."
+        flags:
+            update: true
+        pre:
+            - @(if update) git fetch --all
+            - @(if update) @vcs.remote.set_head
+        do: |
+            HEAD=$$(git rev-parse --symbolic-full-name  origin/HEAD)
+            echo -e "\e[0;32mBehind\tAhead\tBranch\e[0m (Compared to origin/HEAD)"
+            for i in $$(git ls-remote --heads -q | awk '{print $NF}'); do
+                SHORT=${i/refs\/heads/origin}
+                DIFFS=($$(git rev-list --count --left-right origin/HEAD...${SHORT}))
+                printf "%d\t%d\t%s" "${DIFFS[0]}" "${DIFFS[1]}" "${SHORT}";
+                [ "${SHORT}" == "${HEAD//refs\/remotes\/}" ] && echo -en " \e[0;33m (origin/HEAD)\e[0m\n" || echo ""
+            done
