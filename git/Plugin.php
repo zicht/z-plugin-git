@@ -50,10 +50,10 @@ class Plugin extends BasePlugin
         $container->method(
             array('vcs', 'versionid'),
             function($container, $info) {
-                if (preg_match('/^commit ([a-z0-9]+)/', $info, $m)) {
-                    return $m[1];
+                if (preg_match('/^commit (?P<hash>[a-f0-9]+)/im', $info, $m)) {
+                    return $m['hash'];
                 }
-                trigger_error("could not parse info");
+                throw new \RuntimeException("Could not find commit hash in:\n<comment>". $info . "</comment>");
             }
         );
         $container->decl(array('vcs', 'versions'), function($c) {
@@ -83,14 +83,15 @@ class Plugin extends BasePlugin
         );
         $container->decl(
             array('vcs', 'current'),
-            function($container) {
-                return $container->helperExec('git rev-parse HEAD');
-            }
-        );
-        $container->decl(
-            array('vcs', 'current'),
-            function($container) {
-                return $container->call($container->get('versionof'), $container->resolve('cwd'));
+            function(Container $container) {
+
+                $version = $container->call($container->get('versionof'), $container->resolve('cwd'));
+
+                if ($container->isDebug()) {
+                    $container->output->writeln('<comment># current build version: ' . $version . '</comment>');
+                }
+
+                return $version;
             }
         );
     }
