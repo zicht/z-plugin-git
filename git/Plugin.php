@@ -94,5 +94,24 @@ class Plugin extends BasePlugin
                 return $version;
             }
         );
+        $container->decl(
+            array('vcs', 'description'),
+            function(Container $container) {
+
+                $dir = $container->resolve('cwd');
+                $output = $container->helperExec('cd ' . escapeshellarg($dir) . ' && git describe --always --match "*.*.*" --tags HEAD');
+                if (preg_match('/(?P<version>[^\s]+)/im', $output, $m)) {
+                    $version = $m['version'];
+
+                    if ($container->isDebug()) {
+                        $container->output->writeln('<comment># current version description: ' . $version . '</comment>');
+                    }
+
+                    return $version;
+                } else {
+                    throw new \RuntimeException("Could not find descriptive version in:\n<comment>" . $output . "</comment>");
+                }
+            }
+        );
     }
 }

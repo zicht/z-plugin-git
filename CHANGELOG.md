@@ -3,3 +3,6 @@
 
 ## 1.0.1 ##
 * Don't show file permission changes in diff by default. `--verbose` will include them
+
+## 1.0.3 ##
+* Add `vcs.description`
