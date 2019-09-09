@@ -100,7 +100,7 @@ class Plugin extends BasePlugin
 
                 $dir = $container->resolve('cwd');
                 $output = $container->helperExec('cd ' . escapeshellarg($dir) . ' && git describe --always --match "*.*.*" --tags HEAD');
-                if (preg_match('/(?P<version>[^\s]+)/im', $output, $m)) {
+                if (preg_match('/^(?P<version>[^\s\+]+)/im', $output, $m)) {
                     $version = $m['version'];
 
                     if ($container->isDebug()) {
