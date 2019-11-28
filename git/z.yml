@@ -122,3 +122,14 @@ tasks:
                 printf "%d\t%d\t%s" "${DIFFS[0]}" "${DIFFS[1]}" "${SHORT}";
                 [ "${SHORT}" == "${HEAD//refs\/remotes\/}" ] && echo -en " \e[0;33m (origin/HEAD)\e[0m\n" || echo ""
             done
+    vcs.remote.contains:
+        help: "Checks if the remotely deployed version is present in the new deploy by looking up the hash"
+        do: |
+            cd $(build.dir)
+            REMOTE_VERSION=`$(z.cmd) env:version $(target_env)` && CONTAINS=`git log -q --pretty=format:"%H" | grep "$REMOTE_VERSION"`
+            if [ "$CONTAINS" ];
+                then echo -e "\n$REMOTE_VERSION is the commit on '$(target_env)' and this seems to be in your branch. All good.\n";
+            else
+                echo -e "\n\e[41m The commit $REMOTE_VERSION is currently deployed on '$(target_env)' but seems to be missing in what you are deploying. A double-check might be a good idea.\e[0m\n"
+                sleep 2
+            fi
