@@ -24,7 +24,7 @@ tasks:
     _vcs.checkout_build:
         - echo "Checking out version $(build.version) to $(build.dir)";
         - git clone . $(build.dir)
-        - cd $(build.dir) && git checkout $(build.version)
+        - cd $(build.dir) && git -c advice.detachedHead=false checkout $(build.version)
 
     _vcs.cleanup:
         - cd $(build.dir) && git clean -f
@@ -98,7 +98,7 @@ tasks:
 
     vcs.tree:
         help: "Shows last 35 tags and all branches with a short summary"
-        do: 
+        do:
             - echo "Sorry this was not implemented for yet git. Doing a v:versions in stead"
             - @vcs.versions
     vcs.remote.set_head:
@@ -114,11 +114,14 @@ tasks:
             - @(if update) git fetch --all
             - @(if update) @vcs.remote.set_head
         do: |
-            HEAD=$$(git rev-parse --symbolic-full-name  origin/HEAD)
-            echo -e "\e[0;32mBehind\tAhead\tBranch\e[0m (Compared to origin/HEAD)"
-            for i in $$(git ls-remote --heads -q | awk '{print $NF}'); do
-                SHORT=${i/refs\/heads/origin}
-                DIFFS=($$(git rev-list --count --left-right origin/HEAD...${SHORT}))
-                printf "%d\t%d\t%s" "${DIFFS[0]}" "${DIFFS[1]}" "${SHORT}";
-                [ "${SHORT}" == "${HEAD//refs\/remotes\/}" ] && echo -en " \e[0;33m (origin/HEAD)\e[0m\n" || echo ""
-            done
+            (
+                set +x 2>/dev/null
+                HEAD=$$(git rev-parse --symbolic-full-name  origin/HEAD)
+                echo -e "\e[0;32mBehind\tAhead\tBranch\e[0m (Compared to origin/HEAD)"
+                for i in $$(git ls-remote --heads -q | awk '{print $NF}'); do
+                    SHORT=${i/refs\/heads/origin}
+                    DIFFS=($$(git rev-list --count --left-right origin/HEAD...${SHORT}))
+                    printf "%d\t%d\t%s" "${DIFFS[0]}" "${DIFFS[1]}" "${SHORT}";
+                    [ "${SHORT}" == "${HEAD//refs\/remotes\/}" ] && echo -en " \e[0;33m (origin/HEAD)\e[0m\n" || echo ""
+                done
+            )

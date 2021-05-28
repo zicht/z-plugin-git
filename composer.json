@@ -4,11 +4,11 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Gerard van Helden",
-            "email": "gerard@zicht.nl"
+            "name": "Zicht Online",
+            "email": "info@zicht.nl"
         }
     ],
     "require": {
-
+        "zicht/z": "*"
     }
 }

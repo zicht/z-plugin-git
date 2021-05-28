@@ -18,4 +18,4 @@ implemented the same way as in the `svn` plugin, though you might not use them
 as often when you're used to git.
 
 # Maintainer(s)
-* Philip Bergman <philip@zicht.nl>
+* Jochem Klaver <jochem@zicht.nl>
