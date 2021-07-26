@@ -69,7 +69,6 @@ tasks:
     vcs.current:
         help: |
             Display current local working version.
-
         do:
             - echo $(versionof(cwd, VERBOSE))
 
@@ -101,21 +100,23 @@ tasks:
         do:
             - echo "Sorry this was not implemented for yet git. Doing a v:versions in stead"
             - @vcs.versions
+
     vcs.remote.set_head:
         help: "updates the project remote head."
         args:
             remote: ? "origin"
         do: git remote set-head $(remote) -a
+
     vcs.remote.status:
         help: "Prints the (count) behinds/aheads of commits from every remote branch in compare to the remote head."
         flags:
             update: true
         pre:
-            - @(if update) git fetch --all
+            - @(if update) git fetch --all $(!VERBOSE ? "--quiet")
             - @(if update) @vcs.remote.set_head
         do: |
             (
-                set +x 2>/dev/null
+                { set +x; } 2>/dev/null
                 HEAD=$$(git rev-parse --symbolic-full-name  origin/HEAD)
                 echo -e "\e[0;32mBehind\tAhead\tBranch\e[0m (Compared to origin/HEAD)"
                 for i in $$(git ls-remote --heads -q | awk '{print $NF}'); do

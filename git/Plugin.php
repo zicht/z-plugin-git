@@ -1,17 +1,13 @@
 <?php
 /**
- * For licensing information, please see the LICENSE file accompanied with this file.
- *
- * @author Gerard van Helden <drm@melp.nl>
- * @copyright 2012 Gerard van Helden <http://melp.nl>
+ * @copyright Zicht Online <https://zicht.nl>
  */
 
 namespace Zicht\Tool\Plugin\Git;
 
-use \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-
-use \Zicht\Tool\Container\Container;
-use \Zicht\Tool\Plugin as BasePlugin;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Zicht\Tool\Container\Container;
+use Zicht\Tool\Plugin as BasePlugin;
 
 /**
  * Git plugin configuration
@@ -43,7 +39,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function setContainer(Container $container)
     {
@@ -67,12 +63,10 @@ class Plugin extends BasePlugin
                 if (!$info && is_file($revFile = ($dir . '/' . $container->resolve(array('vcs', 'export', 'revfile'))))) {
                     $info = file_get_contents($revFile);
                 }
-
-                if ($info) {
-                    return $container->call($container->resolve(array('vcs', 'versionid')), $info);
-                } else {
+                if (!$info) {
                     return null;
                 }
+                return $container->call($container->resolve(array('vcs', 'versionid')), $info);
             }
         );
         $container->fn(
@@ -100,17 +94,16 @@ class Plugin extends BasePlugin
 
                 $dir = $container->resolve('cwd');
                 $output = $container->helperExec('cd ' . escapeshellarg($dir) . ' && git describe --always --match "*.*.*" --tags HEAD');
-                if (preg_match('/^(?P<version>[^\s\+]+)/im', $output, $m)) {
-                    $version = $m['version'];
-
-                    if ($container->isDebug()) {
-                        $container->output->writeln('<comment># current version description: ' . $version . '</comment>');
-                    }
-
-                    return $version;
-                } else {
+                if (!preg_match('/^(?P<version>[^\s\+]+)/im', $output, $m)) {
                     throw new \RuntimeException("Could not find descriptive version in:\n<comment>" . $output . "</comment>");
                 }
+                $version = $m['version'];
+
+                if ($container->isDebug()) {
+                    $container->output->writeln('<comment># current version description: ' . $version . '</comment>');
+                }
+
+                return $version;
             }
         );
     }
