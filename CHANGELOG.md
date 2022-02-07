@@ -14,3 +14,10 @@
 * Improve output. Don't echo commands in misc script. Don't show detached head info.
 * Updated maintainers / author
 * Added zicht/z to dependencies in composer.json
+
+## 1.0.6
+* Minor code fixes
+* Verbose output fixes
+
+## 1.0.7
+* Use `_vcs_mode` instead of `_mode` to prevent conflicts with deploy `_mode`

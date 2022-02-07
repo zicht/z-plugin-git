@@ -10,10 +10,10 @@ tasks:
     # Create a working copy of the specified version to the build dir
     _vcs.build:
         args:
-            _mode: is_dir(cat(build.dir, "/.git")) ? "update" : "checkout"
+            _vcs_mode: is_dir(cat(build.dir, "/.git")) ? "update" : "checkout"
         do:
-            - @(if _mode == "checkout")    @_vcs.checkout_build
-            - @(if _mode == "update")      @_vcs.update_build
+            - @(if _vcs_mode == "checkout")    @_vcs.checkout_build
+            - @(if _vcs_mode == "update")      @_vcs.update_build
             - cd $(build.dir) && git log HEAD -1 > $(vcs.export.revfile)
         yield: build.dir
 
