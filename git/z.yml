@@ -10,16 +10,16 @@ tasks:
     # Create a working copy of the specified version to the build dir
     _vcs.build:
         args:
-            _vcs_mode: is_dir(cat(build.dir, "/.git")) ? "update" : "checkout"
+            _vcs_mode: 'is_dir(cat(build.dir, "/.git")) ? "update" : "checkout"'
         do:
-            - @(if _vcs_mode == "checkout")    @_vcs.checkout_build
-            - @(if _vcs_mode == "update")      @_vcs.update_build
+            - '@(if _vcs_mode == "checkout")    @_vcs.checkout_build'
+            - '@(if _vcs_mode == "update")      @_vcs.update_build'
             - cd $(build.dir) && git log HEAD -1 > $(vcs.export.revfile)
         yield: build.dir
 
     _vcs.update_build:
         - rm -rf $(build.dir)
-        - @_vcs.checkout_build
+        - '@_vcs.checkout_build'
 
     _vcs.checkout_build:
         - echo "Checking out version $(build.version) to $(build.dir)";
@@ -40,8 +40,8 @@ tasks:
         flags:
             switch: true
         do:
-            - @(with true as INTERACTIVE) git branch $(branch)
-            - @(if switch) git checkout $(branch)
+            - '@(with true as INTERACTIVE) git branch $(branch)'
+            - '@(if switch) git checkout $(branch)'
 
     # Create a version tag
     vcs.tag:
@@ -56,7 +56,7 @@ tasks:
             tag:        ?
             message:    ? sprintf("(Z) Created tag '%s' from %s", tag, vcs.current)
         do:
-            - @(with true as INTERACTIVE) git tag -am"$(message)" $(tag)
+            - '@(with true as INTERACTIVE) git tag -am"$(message)" $(tag)'
 
     # List all versions
     vcs.versions:
@@ -99,7 +99,7 @@ tasks:
         help: "Shows last 35 tags and all branches with a short summary"
         do:
             - echo "Sorry this was not implemented for yet git. Doing a v:versions in stead"
-            - @vcs.versions
+            - '@vcs.versions'
 
     vcs.remote.set_head:
         help: "updates the project remote head."
@@ -112,8 +112,8 @@ tasks:
         flags:
             update: true
         pre:
-            - @(if update) git fetch --all $(!VERBOSE ? "--quiet")
-            - @(if update) @vcs.remote.set_head
+            - '@(if update) git fetch --all $(!VERBOSE ? "--quiet")'
+            - '@(if update) @vcs.remote.set_head'
         do: |
             (
                 { set +x; } 2>/dev/null
