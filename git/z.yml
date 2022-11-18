@@ -23,7 +23,7 @@ tasks:
 
     _vcs.checkout_build:
         - echo "Checking out version $(build.version) to $(build.dir)";
-        - git clone . $(build.dir)
+        - git -c advice.detachedHead=false clone . $(build.dir)
         - cd $(build.dir) && git -c advice.detachedHead=false checkout $(build.version)
 
     _vcs.cleanup:
